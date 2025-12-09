@@ -30,10 +30,12 @@ export interface Lesson {
   planJson?: any;
   materialsJson?: any;
   testsJson?: any;
+  presentationJson?: any;
   // Черновики (из API 2.0)
   planDraftJson?: any;
   materialsDraftJson?: any;
   testsDraftJson?: any;
+  presentationDraftJson?: any;
   createdAt: string;
   updatedAt: string;
 }
@@ -57,8 +59,33 @@ export interface LessonMaterials {
   simplified?: string;
 }
 
+export interface Slide {
+  title: string;
+  bullets: string[];
+  notes?: string;
+}
+
+export interface Presentation {
+  title: string;
+  slides: Slide[];
+}
+
+export type QuestionTypeId =
+  | 'multiple-choice'
+  | 'short-answer'
+  | 'fill-blanks'
+  | 'true-false'
+  | 'matching'
+  | 'ordering'
+  | 'essay'
+  | 'numeric'
+  | 'code'
+  | 'diagram'
+  | 'matrix'
+  | 'drag-drop';
+
 export interface LessonTests {
-  type: 'multiple-choice' | 'short-answer';
+  type: QuestionTypeId;
   difficulty: 'easy' | 'medium' | 'hard';
   questions: TestQuestion[];
   isExam?: boolean;
@@ -66,14 +93,24 @@ export interface LessonTests {
 
 export interface TestQuestion {
   id: string;
-  type: 'multiple-choice' | 'short-answer';
+  type: QuestionTypeId;
   question: string;
-  // Для multiple-choice
+  // Для multiple-choice и true-false
   options?: string[];
-  correctOptionIndex?: number;
+  correctOptionIndex?: number | null;
   // Для short-answer
   answer?: string;
   explanation?: string;
+  // Дополнительные данные для всех типов вопросов
+  additionalData?: any;
+}
+
+export interface QuestionType {
+  id: QuestionTypeId;
+  name: string;
+  description: string;
+  suitableFor: string[];
+  fields: Record<string, any>;
 }
 
 export interface FeedbackRequest {
@@ -94,7 +131,7 @@ export interface Notification {
   type: 'success' | 'error' | 'warning' | 'info';
 }
 
-export type ContentType = 'plan' | 'materials' | 'tests';
+export type ContentType = 'plan' | 'materials' | 'tests' | 'presentation';
 
 export interface ContentVersion {
   id: string;

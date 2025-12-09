@@ -47,6 +47,7 @@ export const ApproveButton = ({
     plan: "план",
     materials: "материалы",
     tests: "тесты",
+    presentation: "презентацию",
   };
 
   const getApproveEndpoint = (type: ContentType) => {
@@ -57,6 +58,8 @@ export const ApproveButton = ({
         return endpoints.lessons.approveMaterials(lessonId);
       case "tests":
         return endpoints.lessons.approveTests(lessonId);
+      case "presentation":
+        return endpoints.lessons.approvePresentation(lessonId);
     }
   };
 

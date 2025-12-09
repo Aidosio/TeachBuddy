@@ -11,15 +11,15 @@ interface LessonState {
   setCurrentLesson: (lesson: Lesson | null) => void;
   setActiveTab: (tab: ActiveTab) => void;
   updateLessonContent: (
-    type: 'plan' | 'materials' | 'tests',
+    type: 'plan' | 'materials' | 'tests' | 'presentation',
     content: any
   ) => void;
   updateDraftContent: (
-    type: 'plan' | 'materials' | 'tests',
+    type: 'plan' | 'materials' | 'tests' | 'presentation',
     draftJson: any
   ) => void;
   updateApprovedContent: (
-    type: 'plan' | 'materials' | 'tests',
+    type: 'plan' | 'materials' | 'tests' | 'presentation',
     approvedJson: any
   ) => void;
   refreshLesson: () => Promise<void>;
@@ -185,9 +185,10 @@ const parseLessonResponse = (rawLesson: any, courseId?: string): Lesson => {
           type: q.type,
           question: q.question,
           options: q.options,
-          correctOptionIndex: q.correctOptionIndex,
+          correctOptionIndex: q.correctOptionIndex ?? null,
           answer: q.type === 'short-answer' ? q.answer : (q.options?.[q.correctOptionIndex] || ''),
           explanation: q.explanation,
+          additionalData: q.additionalData,
         })),
       };
     }
@@ -195,6 +196,15 @@ const parseLessonResponse = (rawLesson: any, courseId?: string): Lesson => {
   
   if (content.testsDraft) {
     lessonData.testsDraftJson = content.testsDraft;
+  }
+  
+  // Обрабатываем презентацию (черновик и утвержденная)
+  if (content.presentationApproved) {
+    lessonData.presentationJson = content.presentationApproved;
+  }
+  
+  if (content.presentationDraft) {
+    lessonData.presentationDraftJson = content.presentationDraft;
   }
   
   // Обрабатываем quizQuestions (старый формат для совместимости)
@@ -211,9 +221,10 @@ const parseLessonResponse = (rawLesson: any, courseId?: string): Lesson => {
           type: q.type,
           question: q.question,
           options: q.options,
-          correctOptionIndex: q.correctOptionIndex,
+          correctOptionIndex: q.correctOptionIndex ?? null,
           answer: q.type === 'short-answer' ? q.answer : (q.options?.[q.correctOptionIndex] || ''),
           explanation: q.explanation,
+          additionalData: q.additionalData,
         })),
       };
     }

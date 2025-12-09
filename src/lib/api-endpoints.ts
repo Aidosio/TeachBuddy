@@ -23,6 +23,9 @@ export const endpoints = {
     generateMaterials: (id: string) =>
       `${API_BASE}/lessons/${id}/generate-materials`,
     generateTests: (id: string) => `${API_BASE}/lessons/${id}/generate-tests`,
+    generatePresentation: (id: string) =>
+      `${API_BASE}/lessons/${id}/generate-presentation`,
+    questionTypes: (id: string) => `${API_BASE}/lessons/${id}/question-types`,
     versions: (lessonId: string, type: string) =>
       `${API_BASE}/lessons/${lessonId}/versions?type=${type}`,
     version: (lessonId: string, versionId: string) =>
@@ -31,7 +34,10 @@ export const endpoints = {
     approveMaterials: (id: string) =>
       `${API_BASE}/lessons/${id}/approve-materials`,
     approveTests: (id: string) => `${API_BASE}/lessons/${id}/approve-tests`,
+    approvePresentation: (id: string) =>
+      `${API_BASE}/lessons/${id}/approve-presentation`,
     exportPdf: (id: string) => `${API_BASE}/lessons/${id}/export-pdf`,
+    exportPptx: (id: string) => `${API_BASE}/lessons/${id}/export-pptx`,
   },
   feedback: {
     generate: `${API_BASE}/feedback/generate`,

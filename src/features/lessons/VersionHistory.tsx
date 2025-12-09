@@ -21,6 +21,12 @@ import {
   AccordionSummary,
   AccordionDetails,
   Divider,
+  Table,
+  TableBody,
+  TableCell,
+  TableRow,
+  TableHead,
+  TableContainer,
 } from '@mui/material';
 import { Clock, Eye, ChevronDown, Target, Book, Activity, CheckCircle } from 'react-feather';
 import { api, endpoints } from '@/lib/api';
@@ -371,23 +377,12 @@ export const VersionHistory = ({ lessonId, type, onSelectVersion }: VersionHisto
 
     if (type === 'tests') {
       const questions = payloadJson.questions || [];
-      return (
-        <Box>
-          <Typography variant="h6" gutterBottom>
-            Вопросы ({questions.length})
-          </Typography>
-          {questions.map((question: any, index: number) => (
-            <Paper key={question.id || index} sx={{ p: 2, mb: 2 }}>
-              <Box display="flex" alignItems="start" gap={1} mb={1}>
-                <Typography variant="h6" color="primary">
-                  {index + 1}.
-                </Typography>
-                <Typography variant="body1" sx={{ flex: 1 }}>
-                  {question.question}
-                </Typography>
-              </Box>
-              
-              {question.type === 'multiple-choice' && question.options && (
+      
+      const renderQuestionContent = (question: any) => {
+        switch (question.type) {
+          case 'multiple-choice':
+            if (question.options && question.options.length > 0) {
+              return (
                 <Box sx={{ ml: 4, mt: 1 }}>
                   {question.options.map((option: string, optIndex: number) => (
                     <Box
@@ -415,9 +410,13 @@ export const VersionHistory = ({ lessonId, type, onSelectVersion }: VersionHisto
                     </Box>
                   ))}
                 </Box>
-              )}
+              );
+            }
+            return null;
 
-              {question.type === 'short-answer' && question.answer && (
+          case 'short-answer':
+            if (question.answer) {
+              return (
                 <Box sx={{ ml: 4, mt: 1 }}>
                   <Paper sx={{ p: 1.5, bgcolor: 'success.light', border: '1px solid', borderColor: 'success.main' }}>
                     <Typography variant="body2" color="success.dark" fontWeight="bold">
@@ -428,7 +427,287 @@ export const VersionHistory = ({ lessonId, type, onSelectVersion }: VersionHisto
                     </Typography>
                   </Paper>
                 </Box>
-              )}
+              );
+            }
+            return null;
+
+          case 'true-false':
+            return (
+              <Box sx={{ ml: 4, mt: 1 }}>
+                {question.options?.map((option: string, optIndex: number) => (
+                  <Box
+                    key={optIndex}
+                    sx={{
+                      p: 1,
+                      mb: 0.5,
+                      borderRadius: 1,
+                      bgcolor: optIndex === question.correctOptionIndex ? 'success.light' : 'grey.100',
+                      border: optIndex === question.correctOptionIndex ? '2px solid' : '1px solid',
+                      borderColor: optIndex === question.correctOptionIndex ? 'success.main' : 'grey.300',
+                    }}
+                  >
+                    <Typography
+                      variant="body2"
+                      color={optIndex === question.correctOptionIndex ? 'success.dark' : 'text.primary'}
+                      sx={{ display: 'flex', alignItems: 'center', gap: 1 }}
+                    >
+                      {optIndex === question.correctOptionIndex && <CheckCircle size={16} />}
+                      {option}
+                    </Typography>
+                  </Box>
+                ))}
+              </Box>
+            );
+
+          case 'fill-blanks':
+            if (question.additionalData?.blanks) {
+              return (
+                <Box sx={{ ml: 4, mt: 1 }}>
+                  <Paper sx={{ p: 1.5, bgcolor: 'success.light', border: '1px solid', borderColor: 'success.main' }}>
+                    <Typography variant="body2" color="success.dark" fontWeight="bold">
+                      Правильные ответы:
+                    </Typography>
+                    {question.additionalData.blanks.map((blank: any, idx: number) => (
+                      <Typography key={idx} variant="body2" color="text.primary" sx={{ mt: 0.5 }}>
+                        Пробел {blank.position + 1}: <strong>{blank.correctAnswer}</strong>
+                      </Typography>
+                    ))}
+                  </Paper>
+                </Box>
+              );
+            }
+            return null;
+
+          case 'matching':
+            if (question.additionalData?.pairs) {
+              return (
+                <Box sx={{ ml: 4, mt: 1 }}>
+                  <Typography variant="body2" color="success.dark" fontWeight="bold" sx={{ mb: 1 }}>
+                    Правильные пары:
+                  </Typography>
+                  <TableContainer component={Paper} variant="outlined">
+                    <Table size="small">
+                      <TableHead>
+                        <TableRow>
+                          <TableCell><strong>Левая часть</strong></TableCell>
+                          <TableCell><strong>Правая часть</strong></TableCell>
+                        </TableRow>
+                      </TableHead>
+                      <TableBody>
+                        {question.additionalData.pairs.map((pair: any, idx: number) => (
+                          <TableRow key={idx}>
+                            <TableCell>{pair.left}</TableCell>
+                            <TableCell>{pair.right}</TableCell>
+                          </TableRow>
+                        ))}
+                      </TableBody>
+                    </Table>
+                  </TableContainer>
+                </Box>
+              );
+            }
+            return null;
+
+          case 'ordering':
+            if (question.additionalData?.correctOrder && question.options) {
+              return (
+                <Box sx={{ ml: 4, mt: 1 }}>
+                  <Paper sx={{ p: 1.5, bgcolor: 'success.light', border: '1px solid', borderColor: 'success.main' }}>
+                    <Typography variant="body2" color="success.dark" fontWeight="bold" sx={{ mb: 1 }}>
+                      Правильный порядок:
+                    </Typography>
+                    {question.additionalData.correctOrder.map((idx: number, orderIdx: number) => (
+                      <Typography key={orderIdx} variant="body2" color="text.primary" sx={{ mt: 0.5 }}>
+                        {orderIdx + 1}. {question.options?.[idx] || ''}
+                      </Typography>
+                    ))}
+                  </Paper>
+                </Box>
+              );
+            }
+            return null;
+
+          case 'numeric':
+            if (question.additionalData?.correctAnswer !== undefined) {
+              return (
+                <Box sx={{ ml: 4, mt: 1 }}>
+                  <Paper sx={{ p: 1.5, bgcolor: 'success.light', border: '1px solid', borderColor: 'success.main' }}>
+                    <Typography variant="body2" color="success.dark" fontWeight="bold">
+                      Правильный ответ: <strong>{question.additionalData.correctAnswer}</strong>
+                    </Typography>
+                    {question.additionalData.tolerance !== undefined && (
+                      <Typography variant="body2" color="text.secondary" sx={{ mt: 0.5 }}>
+                        Допуск: ±{question.additionalData.tolerance}
+                      </Typography>
+                    )}
+                  </Paper>
+                </Box>
+              );
+            }
+            return null;
+
+          case 'code':
+            if (question.additionalData) {
+              return (
+                <Box sx={{ ml: 4, mt: 1 }}>
+                  {question.additionalData.language && (
+                    <Typography variant="body2" color="text.secondary" sx={{ mb: 1 }}>
+                      Язык: {question.additionalData.language}
+                    </Typography>
+                  )}
+                  {question.additionalData.testCases && question.additionalData.testCases.length > 0 && (
+                    <Box sx={{ mt: 1 }}>
+                      <Typography variant="body2" color="success.dark" fontWeight="bold" sx={{ mb: 0.5 }}>
+                        Тестовые случаи:
+                      </Typography>
+                      {question.additionalData.testCases.map((testCase: any, idx: number) => (
+                        <Paper key={idx} sx={{ p: 1, mt: 0.5, bgcolor: 'grey.50' }}>
+                          <Typography variant="caption" component="div">
+                            Вход: <code>{JSON.stringify(testCase.input)}</code>
+                          </Typography>
+                          <Typography variant="caption" component="div">
+                            Ожидается: <code>{JSON.stringify(testCase.expected)}</code>
+                          </Typography>
+                        </Paper>
+                      ))}
+                    </Box>
+                  )}
+                </Box>
+              );
+            }
+            return null;
+
+          case 'essay':
+            if (question.additionalData) {
+              return (
+                <Box sx={{ ml: 4, mt: 1 }}>
+                  <Paper sx={{ p: 1.5, bgcolor: 'grey.50' }}>
+                    {question.additionalData.minWords && (
+                      <Typography variant="body2" color="text.secondary">
+                        Минимум слов: {question.additionalData.minWords}
+                      </Typography>
+                    )}
+                    {question.additionalData.maxWords && (
+                      <Typography variant="body2" color="text.secondary" sx={{ mt: 0.5 }}>
+                        Максимум слов: {question.additionalData.maxWords}
+                      </Typography>
+                    )}
+                  </Paper>
+                </Box>
+              );
+            }
+            return null;
+
+          case 'matrix':
+            if (question.additionalData?.rows && question.additionalData?.columns && question.additionalData?.correctAnswers) {
+              return (
+                <Box sx={{ ml: 4, mt: 1 }}>
+                  <Typography variant="body2" color="success.dark" fontWeight="bold" sx={{ mb: 1 }}>
+                    Правильные ответы:
+                  </Typography>
+                  <TableContainer component={Paper} variant="outlined">
+                    <Table size="small">
+                      <TableHead>
+                        <TableRow>
+                          <TableCell></TableCell>
+                          {question.additionalData.columns.map((col: string, idx: number) => (
+                            <TableCell key={idx} align="center"><strong>{col}</strong></TableCell>
+                          ))}
+                        </TableRow>
+                      </TableHead>
+                      <TableBody>
+                        {question.additionalData.rows.map((row: string, rowIdx: number) => (
+                          <TableRow key={rowIdx}>
+                            <TableCell><strong>{row}</strong></TableCell>
+                            {question.additionalData.correctAnswers[rowIdx]?.map((isCorrect: boolean, colIdx: number) => (
+                              <TableCell key={colIdx} align="center">
+                                {isCorrect ? '✓' : '✗'}
+                              </TableCell>
+                            ))}
+                          </TableRow>
+                        ))}
+                      </TableBody>
+                    </Table>
+                  </TableContainer>
+                </Box>
+              );
+            }
+            return null;
+
+          case 'drag-drop':
+            if (question.additionalData?.dropZones && question.additionalData?.items) {
+              return (
+                <Box sx={{ ml: 4, mt: 1 }}>
+                  <Paper sx={{ p: 1.5, bgcolor: 'grey.50' }}>
+                    <Typography variant="body2" color="success.dark" fontWeight="bold" sx={{ mb: 1 }}>
+                      Зоны размещения:
+                    </Typography>
+                    {question.additionalData.dropZones.map((zone: string, idx: number) => (
+                      <Typography key={idx} variant="body2" color="text.secondary" sx={{ mt: 0.5 }}>
+                        {idx + 1}. {zone}
+                      </Typography>
+                    ))}
+                    <Typography variant="body2" color="success.dark" fontWeight="bold" sx={{ mt: 1, mb: 0.5 }}>
+                      Элементы для перетаскивания:
+                    </Typography>
+                    <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>
+                      {question.additionalData.items.map((item: string, idx: number) => (
+                        <Chip key={idx} label={item} size="small" />
+                      ))}
+                    </Box>
+                  </Paper>
+                </Box>
+              );
+            }
+            return null;
+
+          case 'diagram':
+            return (
+              <Box sx={{ ml: 4, mt: 1 }}>
+                <Paper sx={{ p: 1.5, bgcolor: 'grey.50' }}>
+                  <Typography variant="body2" color="text.secondary">
+                    {question.additionalData?.description || 'Требуется создать схему/диаграмму'}
+                  </Typography>
+                </Paper>
+              </Box>
+            );
+
+          default:
+            return (
+              <Box sx={{ ml: 4, mt: 1 }}>
+                <Typography variant="body2" color="text.secondary">
+                  Тип вопроса: {question.type}
+                </Typography>
+              </Box>
+            );
+        }
+      };
+
+      return (
+        <Box>
+          <Typography variant="h6" gutterBottom>
+            Вопросы ({questions.length})
+          </Typography>
+          {questions.map((question: any, index: number) => (
+            <Paper key={question.id || index} sx={{ p: 2, mb: 2 }}>
+              <Box display="flex" alignItems="start" gap={1} mb={1}>
+                <Typography variant="h6" color="primary">
+                  {index + 1}.
+                </Typography>
+                <Box sx={{ flex: 1 }}>
+                  <Typography variant="body1" sx={{ mb: 0.5 }}>
+                    {question.question}
+                  </Typography>
+                  <Chip
+                    label={question.type}
+                    size="small"
+                    variant="outlined"
+                    sx={{ mb: 1 }}
+                  />
+                </Box>
+              </Box>
+              
+              {renderQuestionContent(question)}
 
               {question.explanation && (
                 <Box sx={{ ml: 4, mt: 1 }}>
@@ -444,6 +723,57 @@ export const VersionHistory = ({ lessonId, type, onSelectVersion }: VersionHisto
               {index < questions.length - 1 && <Divider sx={{ mt: 2 }} />}
             </Paper>
           ))}
+        </Box>
+      );
+    }
+
+    if (type === 'presentation') {
+      const presentation = payloadJson;
+      return (
+        <Box>
+          {presentation.title && (
+            <Box sx={{ mb: 3 }}>
+              <Typography variant="h5" gutterBottom>
+                {presentation.title}
+              </Typography>
+            </Box>
+          )}
+          {presentation.slides && Array.isArray(presentation.slides) && presentation.slides.length > 0 && (
+            <Box>
+              {presentation.slides.map((slide: any, index: number) => (
+                <Paper key={index} sx={{ p: 3, mb: 3 }}>
+                  <Typography variant="h6" gutterBottom>
+                    Слайд {index + 1}: {slide.title}
+                  </Typography>
+                  {slide.bullets && Array.isArray(slide.bullets) && slide.bullets.length > 0 && (
+                    <List sx={{ mt: 2 }}>
+                      {slide.bullets.map((bullet: string, bulletIndex: number) => (
+                        <ListItem key={bulletIndex} sx={{ py: 0.5 }}>
+                          <ListItemText
+                            primary={
+                              <Typography variant="body1">
+                                • {bullet}
+                              </Typography>
+                            }
+                          />
+                        </ListItem>
+                      ))}
+                    </List>
+                  )}
+                  {slide.notes && (
+                    <Box sx={{ mt: 2, p: 2, bgcolor: 'grey.50', borderRadius: 1 }}>
+                      <Typography variant="caption" color="text.secondary" fontWeight="bold" display="block" gutterBottom>
+                        Заметки для преподавателя:
+                      </Typography>
+                      <Typography variant="body2" color="text.secondary" whiteSpace="pre-wrap">
+                        {slide.notes}
+                      </Typography>
+                    </Box>
+                  )}
+                </Paper>
+              ))}
+            </Box>
+          )}
         </Box>
       );
     }
@@ -480,6 +810,7 @@ export const VersionHistory = ({ lessonId, type, onSelectVersion }: VersionHisto
     plan: 'План',
     materials: 'Материалы',
     tests: 'Тесты',
+    presentation: 'Презентация',
   };
 
   return (

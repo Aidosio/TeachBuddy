@@ -160,11 +160,31 @@ export const PresetsManager = ({
       if (!result.complexity) result.complexity = 'средний';
     } else if (type === 'tests') {
       // Параметры для тестов
-      // Тип вопросов
+      // Тип вопросов - поддерживаем все 12 типов
       if (lowerText.includes('выбор') || lowerText.includes('multiple') || lowerText.includes('вариант')) {
         result.type = 'multiple-choice';
       } else if (lowerText.includes('кратк') || lowerText.includes('short') || lowerText.includes('ответ')) {
         result.type = 'short-answer';
+      } else if (lowerText.includes('пробел') || lowerText.includes('fill') || lowerText.includes('заполн')) {
+        result.type = 'fill-blanks';
+      } else if (lowerText.includes('верно') || lowerText.includes('неверно') || lowerText.includes('true-false')) {
+        result.type = 'true-false';
+      } else if (lowerText.includes('сопостав') || lowerText.includes('matching')) {
+        result.type = 'matching';
+      } else if (lowerText.includes('порядок') || lowerText.includes('ordering') || lowerText.includes('упорядоч')) {
+        result.type = 'ordering';
+      } else if (lowerText.includes('эссе') || lowerText.includes('essay')) {
+        result.type = 'essay';
+      } else if (lowerText.includes('числ') || lowerText.includes('numeric') || lowerText.includes('числовой')) {
+        result.type = 'numeric';
+      } else if (lowerText.includes('код') || lowerText.includes('code') || lowerText.includes('программ')) {
+        result.type = 'code';
+      } else if (lowerText.includes('диаграм') || lowerText.includes('схем') || lowerText.includes('diagram')) {
+        result.type = 'diagram';
+      } else if (lowerText.includes('матриц') || lowerText.includes('matrix')) {
+        result.type = 'matrix';
+      } else if (lowerText.includes('перетаск') || lowerText.includes('drag') || lowerText.includes('drop')) {
+        result.type = 'drag-drop';
       }
 
       // Сложность
@@ -195,6 +215,26 @@ export const PresetsManager = ({
           result.type = 'multiple-choice';
         } else if (typeValue.includes('кратк') || typeValue.includes('short') || typeValue.includes('ответ')) {
           result.type = 'short-answer';
+        } else if (typeValue.includes('пробел') || typeValue.includes('fill') || typeValue.includes('заполн')) {
+          result.type = 'fill-blanks';
+        } else if (typeValue.includes('верно') || typeValue.includes('неверно') || typeValue.includes('true-false')) {
+          result.type = 'true-false';
+        } else if (typeValue.includes('сопостав') || typeValue.includes('matching')) {
+          result.type = 'matching';
+        } else if (typeValue.includes('порядок') || typeValue.includes('ordering') || typeValue.includes('упорядоч')) {
+          result.type = 'ordering';
+        } else if (typeValue.includes('эссе') || typeValue.includes('essay')) {
+          result.type = 'essay';
+        } else if (typeValue.includes('числ') || typeValue.includes('numeric') || typeValue.includes('числовой')) {
+          result.type = 'numeric';
+        } else if (typeValue.includes('код') || typeValue.includes('code') || typeValue.includes('программ')) {
+          result.type = 'code';
+        } else if (typeValue.includes('диаграм') || typeValue.includes('схем') || typeValue.includes('diagram')) {
+          result.type = 'diagram';
+        } else if (typeValue.includes('матриц') || typeValue.includes('matrix')) {
+          result.type = 'matrix';
+        } else if (typeValue.includes('перетаск') || typeValue.includes('drag') || typeValue.includes('drop')) {
+          result.type = 'drag-drop';
         }
       }
 
@@ -316,7 +356,22 @@ export const PresetsManager = ({
     } else if (preset.target === 'materials') {
       text = `Тон: ${payload.tone || 'профессиональный'}, Сложность: ${payload.complexity || 'средний'}`;
     } else if (preset.target === 'tests') {
-      text = `Тип: ${payload.type === 'multiple-choice' ? 'выбор из вариантов' : 'краткий ответ'}, Сложность: ${payload.difficulty || 'средний'}, Количество: ${payload.count || 5} вопросов`;
+      const typeNames: Record<string, string> = {
+        'multiple-choice': 'выбор из вариантов',
+        'short-answer': 'краткий ответ',
+        'fill-blanks': 'заполнить пробелы',
+        'true-false': 'верно/неверно',
+        'matching': 'сопоставление',
+        'ordering': 'упорядочивание',
+        'essay': 'эссе',
+        'numeric': 'числовой ответ',
+        'code': 'написать код',
+        'diagram': 'схема/диаграмма',
+        'matrix': 'матрица',
+        'drag-drop': 'перетаскивание',
+      };
+      const typeName = typeNames[payload.type] || payload.type || 'выбор из вариантов';
+      text = `Тип: ${typeName}, Сложность: ${payload.difficulty || 'средний'}, Количество: ${payload.count || 5} вопросов`;
     }
     setTextInput(text);
   };
@@ -422,7 +477,7 @@ export const PresetsManager = ({
                         ? 'Например: Лекция на 90 минут для начального уровня\nИли: Тип: лекция, Длительность: 90, Уровень: начальный'
                         : type === 'materials'
                         ? 'Например: Профессиональный тон, средняя сложность\nИли: Тон: профессиональный, Сложность: средний'
-                        : 'Например: Выбор из вариантов, средняя сложность, 5 вопросов\nИли: Тип: multiple-choice, Сложность: средний, Количество: 5'
+                        : 'Например: Выбор из вариантов, средняя сложность, 5 вопросов\nИли: Тип: multiple-choice, Сложность: средний, Количество: 5\nДоступные типы: multiple-choice, short-answer, fill-blanks, true-false, matching, ordering, essay, numeric, code, diagram, matrix, drag-drop'
                     }
                     helperText={
                       type === 'plan'
