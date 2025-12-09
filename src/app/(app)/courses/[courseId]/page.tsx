@@ -172,6 +172,7 @@ export default function CoursePage() {
           flexDirection: { xs: "column", sm: "row" },
           alignItems: { xs: "stretch", sm: "center" },
           gap: { xs: 2, sm: 2 },
+          justifyContent: { xs: "space-between", sm: "space-between" },
         }}
       >
         <Box
@@ -253,6 +254,7 @@ export default function CoursePage() {
           {lessons.map((lesson) => (
             <ListItem
               key={lesson.id}
+              onClick={() => handleLessonClick(lesson.id)}
               sx={{
                 border: 1,
                 borderColor: "divider",
@@ -264,6 +266,10 @@ export default function CoursePage() {
                 flexDirection: { xs: "column", sm: "row" },
                 alignItems: { xs: "flex-start", sm: "center" },
                 gap: { xs: 1.5, sm: 0 },
+                cursor: "pointer",
+                "&:hover": {
+                  backgroundColor: "action.hover",
+                },
               }}
             >
               <ListItemText
@@ -326,7 +332,10 @@ export default function CoursePage() {
                     },
                   }}
                   variant="contained"
-                  onClick={() => handleEditClick(lesson)}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    handleEditClick(lesson);
+                  }}
                 >
                   <Edit size={20} />
                 </Button>
@@ -341,7 +350,10 @@ export default function CoursePage() {
                     },
                   }}
                   variant="contained"
-                  onClick={() => handleDeleteClick(lesson.id)}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    handleDeleteClick(lesson.id);
+                  }}
                 >
                   <Trash size={20} />
                 </Button>

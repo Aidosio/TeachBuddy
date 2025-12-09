@@ -26,6 +26,14 @@ export interface Lesson {
   plan?: LessonPlan;
   materials?: LessonMaterials;
   tests?: LessonTests;
+  // Утвержденный контент (из API 2.0)
+  planJson?: any;
+  materialsJson?: any;
+  testsJson?: any;
+  // Черновики (из API 2.0)
+  planDraftJson?: any;
+  materialsDraftJson?: any;
+  testsDraftJson?: any;
   createdAt: string;
   updatedAt: string;
 }
@@ -84,5 +92,26 @@ export interface Notification {
   id: string;
   message: string;
   type: 'success' | 'error' | 'warning' | 'info';
+}
+
+export type ContentType = 'plan' | 'materials' | 'tests';
+
+export interface ContentVersion {
+  id: string;
+  lessonId: string;
+  type: ContentType;
+  payloadJson: any;
+  createdAt: string;
+  createdBy: string;
+}
+
+export interface AIPreset {
+  id: string;
+  name: string;
+  target: ContentType;
+  payloadJson: any;
+  isPublic: boolean;
+  createdBy: string;
+  createdAt: string;
 }
 

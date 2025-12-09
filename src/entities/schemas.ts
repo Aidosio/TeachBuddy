@@ -88,8 +88,50 @@ export const lessonSchemaResponse = z.object({
   plan: z.any().optional(),
   materials: z.any().optional(),
   tests: z.any().optional(),
+  // Утвержденный контент (API 2.0)
+  planJson: z.any().optional(),
+  materialsJson: z.any().optional(),
+  testsJson: z.any().optional(),
+  // Черновики (API 2.0)
+  planDraftJson: z.any().optional(),
+  materialsDraftJson: z.any().optional(),
+  testsDraftJson: z.any().optional(),
   createdAt: z.string(),
   updatedAt: z.string(),
+});
+
+// Content version schema
+export const contentVersionSchema = z.object({
+  id: z.string(),
+  lessonId: z.string(),
+  type: z.enum(['plan', 'materials', 'tests']),
+  payloadJson: z.any(),
+  createdAt: z.string(),
+  createdBy: z.string(),
+});
+
+// AI Preset schema
+export const aiPresetSchema = z.object({
+  id: z.string(),
+  name: z.string(),
+  target: z.enum(['plan', 'materials', 'tests']),
+  payloadJson: z.any(),
+  isPublic: z.boolean(),
+  createdBy: z.string(),
+  createdAt: z.string(),
+});
+
+// Preset creation schema
+export const presetCreateSchema = z.object({
+  name: z.string().min(1, 'Название пресета обязательно'),
+  target: z.enum(['plan', 'materials', 'tests']),
+  payloadJson: z.any(),
+  isPublic: z.boolean().optional().default(false),
+});
+
+// Approval request schema
+export const approvalRequestSchema = z.object({
+  versionId: z.string().optional(),
 });
 
 export type LoginInput = z.infer<typeof loginSchema>;
@@ -100,4 +142,8 @@ export type PlanGenerationInput = z.infer<typeof planGenerationSchema>;
 export type MaterialsGenerationInput = z.infer<typeof materialsGenerationSchema>;
 export type TestsGenerationInput = z.infer<typeof testsGenerationSchema>;
 export type FeedbackInput = z.infer<typeof feedbackSchema>;
+export type ContentVersion = z.infer<typeof contentVersionSchema>;
+export type AIPreset = z.infer<typeof aiPresetSchema>;
+export type PresetCreateInput = z.infer<typeof presetCreateSchema>;
+export type ApprovalRequestInput = z.infer<typeof approvalRequestSchema>;
 

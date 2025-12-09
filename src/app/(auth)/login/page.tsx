@@ -41,7 +41,15 @@ export default function LoginPage() {
   const onSubmit = async (data: LoginInput) => {
     try {
       setError(null);
-      const response = await api.post(endpoints.auth.login, data);
+      // Определяем язык из браузера или используем 'ru' по умолчанию
+      const language = typeof window !== 'undefined' 
+        ? (navigator.language || navigator.languages?.[0] || 'ru').split('-')[0]
+        : 'ru';
+      
+      const response = await api.post(endpoints.auth.login, {
+        ...data,
+        language,
+      });
       
       // Обрабатываем разные форматы ответа
       let authData = response.data;

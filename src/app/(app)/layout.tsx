@@ -25,8 +25,15 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
   const { isAuthenticated, user, logout } = useAuthStore();
   const router = useRouter();
   const theme = useTheme();
-  const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
   const [mobileOpen, setMobileOpen] = useState(false);
+  const [mounted, setMounted] = useState(false);
+  // Используем noSsr чтобы избежать проблем с гидратацией
+  const isMobile = useMediaQuery(theme.breakpoints.down("sm"), { noSsr: true });
+
+  // Убеждаемся, что компонент смонтирован на клиенте перед рендерингом условных элементов
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   useEffect(() => {
     if (!isAuthenticated()) {
@@ -103,6 +110,22 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
       </List>
     </Box>
   );
+
+  // Пока не смонтирован, рендерим только контент без условных элементов
+  if (!mounted) {
+    return (
+      <Container
+        maxWidth="xl"
+        sx={{
+          mt: { xs: 8, sm: 4 },
+          mb: 4,
+          px: { xs: 1, sm: 3 },
+        }}
+      >
+        {children}
+      </Container>
+    );
+  }
 
   return (
     <>
